@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Логін</title>
+  <link rel="stylesheet" href="/css/login-style.css">
+</head>
+<body>
+<div class="login-container">
+  <h2>Вхід</h2>
+  <form method="post" action="/login">
+    <label for="username">Ім’я користувача:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Увійти</button>
+  </form>
+  <div style="text-align: center; margin-top: 10px;">
+    <a href="/register">Зареєструватися</a>
+  </div>
+
+  <p style="color: red; text-align: center;">[[${error}]]</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Профіль користувача</title>
+    <link rel="stylesheet" href="/css/user-style.css">
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = passwordInput.nextElementSibling;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁️';
+            }
+        }
+    </script>
+</head>
+<body>
+<div class="user-container">
+    <h2>Вітаємо, <span th:text="${user.username}">[username]</span>!</h2>
+
+    <label>Ваш пароль:</label>
+    <div style="position: relative;">
+        <input type="password" id="password" th:value="${user.password}" readonly>
+        <span id="eye-icon" onclick="togglePassword()" style="cursor:pointer; position:absolute; right:10px; top:6px;">👁️</span>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/notes">Перейти до нотаток</a> |
+        <a href="/logout">Вийти</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список нотаток</title>
+    <link rel="stylesheet" href="/css/list-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous"/>
+    <style>
+        .search-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-panel.hidden {
+            display: none;
+        }
+
+        .search-icon {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        th.sortable {
+            cursor: pointer;
+        }
+
+        .highlight-column {
+            background-color: #cce5ff !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Список нотаток</h1>
+    <div class="search-controls">
+        <button id="toggleSearch" class="search-icon" title="Показати/сховати пошук">
+            <i class="fas fa-search"></i>
+        </button>
+        <div class="search-panel hidden" id="searchPanel">
+            <label for="searchField">Пошук за:</label>
+            <select id="searchField"></select>
+            <input type="text" id="searchInput" placeholder="Введіть текст для пошуку">
+        </div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th class="sortable">Прізвище</th>
+            <th class="sortable">Дата народження</th>
+            <th class="sortable">Телефон</th>
+            <th class="sortable">Адреса</th>
+            <th class="sortable">Місце роботи</th>
+            <th class="sortable">Email</th>
+            <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody id="noteTableBody">
+        <tr th:each="note : ${notes}" th:attr="data-id=${note.id}">
+            <td class="editable" contenteditable="false" th:text="${note.lastName}"></td>
+            <td class="editable date-cell" contenteditable="false" th:text="${note.birthDate}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.phoneNumber}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.address}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.jobPlace}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.email}"></td>
+            <td class="actions">
+                <button class="icon-button edit-btn" title="Редагувати"><i class="fas fa-pen"></i></button>
+                <button class="icon-button delete-btn" title="Видалити"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="button-wrapper">
+        <button class="add-button" id="addNoteBtn" title="Додати">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+</div>
+
+<div id="confirmPopup" class="popup hidden">
+    <div class="popup-content">
+        <p>Увага! Ви дійсно бажаєте видалити контакт?</p>
+        <button id="confirmYes">Так</button>
+        <button id="confirmNo">Ні</button>
+    </div>
+</div>
+
+<script>
+    let rowBeingEdited = null;
+    let deleteTargetRow = null;
+    let currentSort = { index: null, asc: true };
+
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.edit-btn')) {
+            const btn = e.target.closest('.edit-btn');
+            const row = btn.closest('tr');
+            const isEditing = row.classList.contains('editing');
+
+            if (!isEditing) {
+                if (rowBeingEdited && rowBeingEdited !== row) {
+                    cancelEditing(rowBeingEdited);
+                }
+
+                row.classList.add('editing');
+                rowBeingEdited = row;
+                row.querySelectorAll('.editable').forEach((cell, index) => {
+                    cell.contentEditable = "true";
+                    if (index === 1) {
+                        const currentText = cell.innerText.trim();
+                        const input = document.createElement('input');
+                        input.type = 'date';
+                        input.className = 'date-input';
+                        input.value = currentText ? new Date(currentText).toISOString().split('T')[0] : '';
+                        cell.innerText = '';
+                        cell.appendChild(input);
+                    }
+                });
+
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                row.style.backgroundColor = '#f0f0f0';
+            } else {
+                const id = row.dataset.id;
+                const cells = row.querySelectorAll('.editable');
+
+                const data = {
+                    lastName: cells[0].innerText.trim(),
+                    birthDate: cells[1].querySelector('input')?.value || cells[1].innerText.trim(),
+                    phoneNumber: cells[2].innerText.trim(),
+                    address: cells[3].innerText.trim(),
+                    jobPlace: cells[4].innerText.trim(),
+                    email: cells[5].innerText.trim()
+                };
+
+                const url = id ? `/notes/edit-ajax/${id}` : `/notes/create-ajax`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).then(response => id ? Promise.resolve() : response.json())
+                    .then(result => {
+                        if (!id) {
+                            row.setAttribute('data-id', result.id);
+                        }
+                        finishEdit(row, btn, data.birthDate);
+                    });
+            }
+        }
+    });
+
+    function finishEdit(row, btn, birthDateValue) {
+        row.querySelectorAll('.editable').forEach((cell, index) => {
+            if (index === 1) {
+                const input = cell.querySelector('input');
+                const newDate = birthDateValue || (input ? input.value : '');
+                cell.innerHTML = newDate;
+            }
+            cell.contentEditable = "false";
+        });
+        btn.innerHTML = '<i class="fas fa-pen"></i>';
+        row.classList.remove('editing');
+        row.style.backgroundColor = '';
+        rowBeingEdited = null;
+    }
+
+    function cancelEditing(row) {
+        row.querySelectorAll('.editable').forEach(cell => {
+            cell.contentEditable = "false";
+            if (cell.querySelector('input')) {
+                const originalValue = cell.querySelector('input').value;
+                cell.innerHTML = originalValue;
+            }
+        });
+        row.querySelector('.edit-btn').innerHTML = '<i class="fas fa-pen"></i>';
+        row.classList.remove('editing');
+        row.style.backgroundColor = '';
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.delete-btn')) {
+            deleteTargetRow = e.target.closest('tr');
+            document.getElementById('confirmPopup').classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('confirmYes').addEventListener('click', () => {
+        const id = deleteTargetRow.dataset.id;
+        fetch(`/notes/delete-ajax/${id}`, { method: 'POST' })
+            .then(() => {
+                deleteTargetRow.remove();
+                document.getElementById('confirmPopup').classList.add('hidden');
+            });
+    });
+
+    document.getElementById('confirmNo').addEventListener('click', () => {
+        document.getElementById('confirmPopup').classList.add('hidden');
+    });
+
+    document.getElementById('addNoteBtn').addEventListener('click', () => {
+        const tableBody = document.getElementById('noteTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td class="editable" contenteditable="true"></td>
+            <td class="editable date-cell"><input type="date" class="date-input"></td>
+            <td class="editable" contenteditable="true"></td>
+            <td class="editable" contenteditable="true"></td>
+            <td class="editable" contenteditable="true"></td>
+            <td class="editable" contenteditable="true"></td>
+            <td class="actions">
+                <button class="icon-button edit-btn" title="Зберегти"><i class="fas fa-check"></i></button>
+                <button class="icon-button delete-btn" title="Видалити"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        tableBody.appendChild(newRow);
+        newRow.classList.add('editing');
+        rowBeingEdited = newRow;
+        newRow.style.backgroundColor = '#f0f0f0';
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && rowBeingEdited) {
+            e.preventDefault();
+            rowBeingEdited.querySelector('.edit-btn').click();
+        }
+    });
+
+    document.getElementById('toggleSearch').addEventListener('click', () => {
+        document.getElementById('searchPanel').classList.toggle('hidden');
+    });
+
+    function populateSearchOptions() {
+        const select = document.getElementById('searchField');
+        const headers = document.querySelectorAll('thead th');
+        select.innerHTML = '';
+
+        headers.forEach((th, index) => {
+            if (index < headers.length - 1) {
+                const colName = th.textContent.trim();
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = colName;
+                select.appendChild(option);
+            }
+        });
+
+        const allOption = document.createElement('option');
+        allOption.value = 'all';
+        allOption.textContent = 'усі';
+        select.appendChild(allOption);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('searchField').addEventListener('change', filterTable);
+
+    function filterTable() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const field = document.getElementById('searchField').value;
+        const rows = document.querySelectorAll('#noteTableBody tr');
+
+        rows.forEach(row => {
+            let visible = false;
+            const cells = row.children;
+
+            if (field === 'all') {
+                for (let i = 0; i < cells.length - 1; i++) {
+                    const text = cells[i].textContent.toLowerCase();
+                    if (text.includes(input)) {
+                        visible = true;
+                        break;
+                    }
+                }
+            } else {
+                const index = parseInt(field);
+                const cellText = cells[index]?.textContent.toLowerCase() || '';
+                visible = cellText !== '' && cellText.includes(input);
+            }
+
+            row.style.display = visible ? '' : 'none';
+        });
+    }
+
+    document.querySelectorAll('th.sortable').forEach((header, colIndex) => {
+        header.addEventListener('click', () => {
+            const tbody = document.getElementById('noteTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const isSameCol = currentSort.index === colIndex;
+            currentSort.asc = isSameCol ? !currentSort.asc : true;
+            currentSort.index = colIndex;
+
+            // Видаляємо всі стрілочки
+            document.querySelectorAll('.sort-indicator').forEach(el => el.remove());
+
+            // Створюємо нову
+            const arrow = document.createElement('i');
+            arrow.className = `fas ${currentSort.asc ? 'fa-arrow-up up' : 'fa-arrow-down down'} sort-indicator`;
+            header.appendChild(arrow);
+
+            rows.sort((a, b) => {
+                const aText = a.children[colIndex].textContent.trim().toLowerCase();
+                const bText = b.children[colIndex].textContent.trim().toLowerCase();
+
+                if (aText === '' && bText !== '') return 1;
+                if (aText !== '' && bText === '') return -1;
+                if (aText === '' && bText === '') return 0;
+
+                return currentSort.asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+
+
+    populateSearchOptions();
+</script>
+<div class="user-icon">
+    <a href="/user" title="Профіль">
+        <i class="fas fa-user-circle"></i>
+    </a>
+</div>
+</body>
+</html>

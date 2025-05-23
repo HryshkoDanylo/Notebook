@@ -1,0 +1,24 @@
+package Notebook;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.awt.*;
+import java.net.URI;
+
+@SpringBootApplication
+public class NotebookApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(NotebookApplication.class, args);
+
+        // Відкриваємо браузер
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(new URI("http://localhost:8080/notes"));
+            }
+        } catch (Exception e) {
+            System.err.println("Не вдалося відкрити браузер: " + e.getMessage());
+        }
+    }
+}
