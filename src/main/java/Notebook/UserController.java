@@ -2,7 +2,6 @@ package Notebook;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +11,6 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -28,10 +24,8 @@ public class UserController {
             model.addAttribute("error", "Користувач з таким іменем вже існує.");
             return "registration";
         }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserModel savedUser = userRepository.save(user);
-        session.setAttribute("user", savedUser);
+        session.setAttribute("user", savedUser);  // Автоматичний логін
         return "redirect:/notes";
     }
 
@@ -43,8 +37,7 @@ public class UserController {
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, HttpSession session, Model model) {
         UserModel user = userRepository.findByUsername(username);
-
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+        if (user != null && user.getPassword().equals(password)) {
             session.setAttribute("user", user);
             return "redirect:/notes";
         } else {

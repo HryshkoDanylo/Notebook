@@ -2,19 +2,12 @@ package Notebook;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import jakarta.annotation.PostConstruct;
 
 import java.awt.*;
 import java.net.URI;
 
 @SpringBootApplication
 public class NotebookApplication {
-    @PostConstruct
-public void logEnv() {
-    System.out.println("DB URL: " + System.getenv("PGHOST"));
-    System.out.println("DB USER: " + System.getenv("PGUSER"));
-    System.out.println("DB PASS: " + System.getenv("PGPASSWORD"));
-}
 
     public static void main(String[] args) {
         SpringApplication.run(NotebookApplication.class, args);
@@ -27,6 +20,5 @@ public void logEnv() {
         } catch (Exception e) {
             System.err.println("Не вдалося відкрити браузер: " + e.getMessage());
         }
-
     }
 }
