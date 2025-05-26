@@ -185,7 +185,7 @@
         if (e.target.isContentEditable && e.target.matches('#noteTableBody td.editable')) {
             const cell = e.target;
             const maxLengthString = cell.dataset.maxLength;
-            let maxLength = 25; // Значення за замовчуванням, якщо атрибут не валідний або відсутній
+            let maxLength = 45; // Значення за замовчуванням, якщо атрибут не валідний або відсутній
 
             if (maxLengthString && !isNaN(parseInt(maxLengthString, 10))) {
                 maxLength = parseInt(maxLengthString, 10);
