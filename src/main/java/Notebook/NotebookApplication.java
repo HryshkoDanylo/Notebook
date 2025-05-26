@@ -1,8 +1,8 @@
 package Notebook;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import jakarta.annotation.PostConstruct;
 
 import java.awt.*;
 import java.net.URI;
