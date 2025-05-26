@@ -22,8 +22,7 @@ public class AuthFilter implements Filter {
         boolean isPublicPath = path.startsWith("/login") ||
                 path.startsWith("/register") ||
                 path.startsWith("/css") ||
-                path.startsWith("/error") ||
-                path.startsWith("/notes");
+                path.startsWith("/error");
 
         HttpSession session = req.getSession(false);
         boolean loggedIn = session != null && session.getAttribute("user") != null;
@@ -31,6 +30,7 @@ public class AuthFilter implements Filter {
         if (!loggedIn && !isPublicPath) {
             res.sendRedirect("/login");
         } else {
+            System.out.println("Path: " + path + " | Logged in: " + loggedIn);
             chain.doFilter(request, response);
         }
     }
