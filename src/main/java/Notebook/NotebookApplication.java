@@ -18,8 +18,6 @@ public void logEnv() {
 
     public static void main(String[] args) {
         SpringApplication.run(NotebookApplication.class, args);
-
-        // Відкриваємо браузер
         try {
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().browse(new URI("http://localhost:8080/notes"));

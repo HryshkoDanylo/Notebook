@@ -49,7 +49,7 @@ public class NoteController {
         return noteRepository.save(note);
     }
 
-    // Форма редагування (перевірка не обов'язкова, але бажана)
+    // Форма редагування
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model, HttpSession session) {
         Optional<NoteModel> optionalNote = noteRepository.findById(id);
@@ -71,7 +71,7 @@ public class NoteController {
 
         if (existingNote.isPresent() && existingNote.get().getUser().getId().equals(user.getId())) {
             updatedNote.setId(id);
-            updatedNote.setUser(user);  // Не забуваємо прив'язку
+            updatedNote.setUser(user);
             noteRepository.save(updatedNote);
         }
 
