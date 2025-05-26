@@ -2,13 +2,9 @@ package Notebook;
 
 import jakarta.persistence.*;
 import java.util.List;
-import jakarta.persistence.ManyToOne;
 
 @Entity
 public class UserModel {
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserModel user;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +15,6 @@ public class UserModel {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<NoteModel> notes;
-
-    // Геттери та сеттери
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
