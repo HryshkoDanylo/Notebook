@@ -61,12 +61,12 @@
         </thead>
         <tbody id="noteTableBody">
         <tr th:each="note : ${notes}" th:attr="data-id=${note.id}">
-            <td class="editable" contenteditable="false" th:text="${note.lastName}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.lastName}" data-maxlength="10"></td>
             <td class="editable date-cell" contenteditable="false" th:text="${note.birthDate}"></td>
-            <td class="editable" contenteditable="false" th:text="${note.phoneNumber}"></td>
-            <td class="editable" contenteditable="false" th:text="${note.address}"></td>
-            <td class="editable" contenteditable="false" th:text="${note.jobPlace}"></td>
-            <td class="editable" contenteditable="false" th:text="${note.email}"></td>
+            <td class="editable" contenteditable="false" th:text="${note.phoneNumber}" data-maxlength="10-"></td>
+            <td class="editable" contenteditable="false" th:text="${note.address}" data-maxlength="15"></td>
+            <td class="editable" contenteditable="false" th:text="${note.jobPlace}" data-maxlength="20"></td>
+            <td class="editable" contenteditable="false" th:text="${note.email}" data-maxlength="35"></td>
             <td class="actions">
                 <button class="icon-button edit-btn" title="Редагувати"><i class="fas fa-pen"></i></button>
                 <button class="icon-button delete-btn" title="Видалити"><i class="fas fa-trash"></i></button>
@@ -152,7 +152,24 @@
             }
         }
     });
+    document.addEventListener('input', function (e) {
+        if (e.target.isContentEditable) {
+            const cell = e.target;
+            // Отримуємо maxLength з data-атрибуту, або використовуємо 30 як значення за замовчуванням
+            const maxLength = parseInt(cell.dataset.maxLength, 10) || 25; // [1]
 
+            if (cell.innerText.length > maxLength) {
+                cell.innerText = cell.innerText.substring(0, maxLength);
+                // Переміщення курсора в кінець
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(cell);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    });
     function finishEdit(row, btn, birthDateValue) {
         row.querySelectorAll('.editable').forEach((cell, index) => {
             if (index === 1) {
