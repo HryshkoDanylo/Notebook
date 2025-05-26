@@ -27,7 +27,7 @@ public class AuthFilter implements Filter {
         HttpSession session = req.getSession(false);
         boolean loggedIn = session != null && session.getAttribute("user") != null;
 
-        if (!loggedIn) {
+        if (!loggedIn && !isPublicPath) {
             res.sendRedirect("/login");
         } else {
             chain.doFilter(request, response);
