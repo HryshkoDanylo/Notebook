@@ -22,7 +22,8 @@ public class AuthFilter implements Filter {
         boolean isPublicPath = path.startsWith("/login") ||
                 path.startsWith("/register") ||
                 path.startsWith("/css") ||
-                path.startsWith("/error");
+                path.startsWith("/error") ||
+                path.startsWith("/notes");
 
         HttpSession session = req.getSession(false);
         boolean loggedIn = session != null && session.getAttribute("user") != null;
