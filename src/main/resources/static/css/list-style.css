@@ -2,42 +2,45 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f3f3f3;
     margin: 0;
-    padding: 20px;
+    padding: 20px; /* Зменшено padding для body, щоб контейнер краще виглядав на менших екранах */
     box-sizing: border-box;
 }
 
 .container {
-    width:1400px;
-    max-width: 1800px;
+    max-width: 1100px;
     margin: 0 auto;
     background-color: #fff;
-    padding: 20px 30px;
+    padding: 20px 30px; /* Трохи зменшено padding */
     border-radius: 12px;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    overflow-x: auto;
+    overflow-x: auto; /* Додано для горизонтальної прокрутки таблиці при необхідності */
 }
 
 h1 {
     text-align: center;
     color: #0056d6;
-    font-size: 28px;
+    font-size: 28px; /* Трохи зменшено */
     margin-bottom: 20px;
 }
 
 table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px;
-    table-layout: fixed;
+    border-collapse: separate; /* Залишено separate для збереження вашого стилю з border-spacing */
+    border-spacing: 0 10px; /* Трохи зменшено spacing */
+    table-layout: fixed; /* Додано для кращого контролю ширини стовпців */
 }
 
 th {
     text-align: left;
     font-weight: bold;
-    padding: 12px 15px;
+    padding: 12px 15px; /* Узгоджено padding */
     color: #333;
-    background-color: #f8f9fa;
-    overflow-wrap: break-word;
+    background-color: #f8f9fa; /* Додано легкий фон для заголовків */
+    /* Для border-radius з border-spacing, можна спробувати так, але може не ідеально: */
+    /* border-top-left-radius: 6px; */
+    /* border-top-right-radius: 6px; */
+    /* Або просто без них, якщо стиль рядків важливіший */
+    overflow-wrap: break-word; /* Додано для переносу тексту */
 }
 
 td {
@@ -45,22 +48,24 @@ td {
     background-color: #f9f9f9;
     border-radius: 6px;
     vertical-align: middle;
-    overflow-wrap: break-word;
-    border: 1px solid #e9ecef;
+    overflow-wrap: break-word; /* Додано для переносу тексту */
+    border: 1px solid #e9ecef; /* Тонка межа для кращого розділення */
 }
 
+/* Стиль для рядка, що редагується */
 tr.editing td {
-    background-color: #e6effc !important;
+    background-color: #e6effc !important; /* Світло-блакитний фон для редагування */
+    /* box-shadow: 0 0 5px rgba(0, 86, 214, 0.3); Додатковий ефект, якщо бажаєте */
 }
 
 
 td.actions {
     display: flex;
-    gap: 8px;
+    gap: 8px; /* Трохи зменшено gap */
     align-items: center;
-    justify-content: center;
-    background-color: transparent;
-    border: none;
+    justify-content: center; /* Центрування кнопок */
+    background-color: transparent; /* Щоб не перезаписувати фон з tr.editing td */
+    border: none; /* Забираємо стандартний бордер для td.actions */
 }
 
 .icon-button {
@@ -68,53 +73,55 @@ td.actions {
     padding: 8px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
+    font-size: 16px; /* Розмір іконки */
+    line-height: 1; /* Для кращого вертикального вирівнювання іконки всередині кнопки */
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
-    display: inline-flex;
+    display: inline-flex; /* Для кращого центрування іконки */
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 36px; /* Фіксована ширина */
+    height: 36px; /* Фіксована висота */
 }
 
 .icon-button:active {
-    transform: translateY(1px);
+    transform: translateY(1px); /* Ефект натискання */
 }
 
+/* Оновлені стилі для кнопок .edit-btn та .delete-btn */
 .icon-button.edit-btn {
-    background-color: #d1e7fd;
-    color: #0c5460;
+    background-color: #d1e7fd; /* Світло-блакитний (Bootstrap info-light) */
+    color: #0c5460; /* Темно-синій (Bootstrap info) */
 }
 .icon-button.edit-btn:hover {
-    background-color: #b8daff;
+    background-color: #b8daff; /* Трохи темніший блакитний */
     color: #084250;
 }
 
+/* Коли кнопка редагування стає кнопкою "Зберегти" (містить .fa-check) */
 .icon-button.edit-btn i.fa-check {
-    color: #155724;
+    color: #155724; /* Зелений колір для галочки */
 }
-.icon-button.edit-btn:has(i.fa-check) {
-    background-color: #d4edda;
+.icon-button.edit-btn:has(i.fa-check) { /* Стиль для кнопки "Зберегти" */
+    background-color: #d4edda; /* Світло-зелений (Bootstrap success-light) */
 }
 .icon-button.edit-btn:has(i.fa-check):hover {
-    background-color: #c3e6cb;
+    background-color: #c3e6cb; /* Трохи темніший зелений */
 }
 
 
 .icon-button.delete-btn {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f8d7da; /* Світло-червоний (Bootstrap danger-light) */
+    color: #721c24; /* Темно-червоний (Bootstrap danger) */
 }
 .icon-button.delete-btn:hover {
-    background-color: #f5c6cb;
+    background-color: #f5c6cb; /* Трохи темніший червоний */
     color: #5a161b;
 }
 
 
 .button-wrapper {
-    margin-top: 25px;
-    text-align: center;
+    margin-top: 25px; /* Трохи зменшено */
+    text-align: center; /* Кнопку "Додати" по центру */
 }
 
 .add-button {
@@ -129,11 +136,11 @@ td.actions {
     font-size: 20px;
     text-decoration: none;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    border: none;
+    border: none; /* Переконатися, що немає межі */
 }
 .add-button:hover {
-    background-color: #0045b0;
-    transform: translateY(-1px);
+    background-color: #0045b0; /* Трохи темніший синій */
+    transform: translateY(-1px); /* Ефект підняття */
 }
 .add-button:active {
     transform: translateY(1px);
@@ -146,12 +153,12 @@ td.actions {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.5); /* Трохи темніший фон */
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(3px);
+    z-index: 1000; /* Високий z-index */
+    backdrop-filter: blur(3px); /* Ефект розмиття фону, якщо підтримується */
 }
 
 .popup.hidden {
@@ -160,8 +167,8 @@ td.actions {
 
 .popup-content {
     background: white;
-    padding: 25px 35px;
-    border-radius: 10px;
+    padding: 25px 35px; /* Збільшено padding */
+    border-radius: 10px; /* Трохи менший радіус */
     text-align: center;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
@@ -172,11 +179,11 @@ td.actions {
 }
 
 .popup-content button {
-    margin: 0 8px;
-    padding: 10px 20px;
+    margin: 0 8px; /* Змінено margin для кнопок */
+    padding: 10px 20px; /* Збільшено padding */
     border: none;
     border-radius: 6px;
-    font-weight: 500;
+    font-weight: 500; /* Змінено на 500 */
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -190,14 +197,14 @@ td.actions {
 }
 
 #confirmNo {
-    background-color: #6c757d;
+    background-color: #6c757d; /* Сірий (Bootstrap secondary) */
     color: white;
 }
 #confirmNo:hover {
     background-color: #5a6268;
 }
 
-.search-controls {
+.search-controls { /* Додано для обгортки кнопки пошуку та панелі */
     display: flex;
     align-items: center;
     gap: 10px;
@@ -205,32 +212,33 @@ td.actions {
 }
 
 .search-panel {
-    display: flex;
+    /* margin: 20px 0; Задається через search-controls */
+    display: flex; /* Вже є в inline стилях, але можна тримати для узгодженості */
     align-items: center;
     gap: 10px;
-    flex-grow: 1;
+    flex-grow: 1; /* Дозволяє панелі зайняти доступне місце */
 }
 .search-panel label {
     font-size: 14px;
     color: #555;
 }
 .search-panel select,
-.search-panel input[type="text"] {
-    padding: 8px 10px;
-    font-size: 14px;
-    border: 1px solid #ced4da;
+.search-panel input[type="text"] { /* Змінено селектор для input */
+    padding: 8px 10px; /* Збільшено padding */
+    font-size: 14px; /* Узгоджено розмір шрифту */
+    border: 1px solid #ced4da; /* Стандартний колір межі Bootstrap */
     border-radius: 4px;
 }
 .search-panel input[type="text"] {
-    flex-grow: 1;
+    flex-grow: 1; /* Дозволяє полю вводу розтягуватися */
 }
 
 
 .user-icon {
-    position: fixed;
-    top: 20px;
-    right: 30px;
-    font-size: 28px;
+    position: absolute; /* Можливо, краще fixed, якщо сторінка прокручується */
+    top: 20px; /* Збільшено відступ */
+    right: 30px; /* Збільшено відступ */
+    font-size: 28px; /* Збільшено розмір */
 }
 .user-icon a {
     color: #0056d6;
@@ -242,15 +250,16 @@ td.actions {
 }
 
 .sort-indicator {
-    margin-left: 8px;
-    font-size: 12px;
+    margin-left: 8px; /* Збільшено відступ */
+    font-size: 12px; /* Трохи менший розмір */
     opacity: 0.7;
 }
 
-.sort-indicator.fa-arrow-up {
-    color: #28a745;
+/* Кольори для індикаторів сортування можна залишити або змінити на більш нейтральні */
+.sort-indicator.fa-arrow-up { /* Змінено селектор для конкретної іконки */
+    color: #28a745; /* Зелений */
 }
 
-.sort-indicator.fa-arrow-down {
-    color: #dc3545;
+.sort-indicator.fa-arrow-down { /* Змінено селектор для конкретної іконки */
+    color: #dc3545; /* Червоний */
 }

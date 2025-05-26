@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Реєстрація</title>
-    <link rel="stylesheet" href="/css/registration-style.css">
+    <link rel="stylesheet" href="/css/auth-style.css">
 </head>
 <body>
-<div class="registration-container">
-    <h2>Реєстрація</h2>
+<div class="auth-container">
+    <h2>Створення акаунту</h2>
     <form action="/register" method="post">
-        <label for="username">Ім’я користувача:</label>
-        <input type="text" id="username" name="username" required>
+        <div class="form-group">
+            <label for="username">Ім’я користувача:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
 
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" name="password" required>
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
 
-        <button type="submit">Зареєструватись</button>
-        <a href="/login" class="back-to-login">⬅ Повернутись до входу</a>
+        <button type="submit" class="btn btn-register">Зареєструватись</button>
     </form>
+
+    <a href="/login" class="auth-link">Вже є акаунт? Повернутись до входу</a>
 </div>
 </body>
 </html>

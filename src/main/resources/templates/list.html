@@ -31,6 +31,25 @@
         .highlight-column {
             background-color: #cce5ff !important;
         }
+
+        /* CSS для запобігання виходу за межі контейнера */
+        /* Ці правила ви можете додати до вашого list-style.css або залишити тут */
+        .container {
+            /* overflow-x: auto; -- Це правило має бути у вашому list-style.css для .container */
+        }
+        table {
+            /* table-layout: fixed; -- Це правило має бути у вашому list-style.css для table */
+            /* width: 100%; */
+        }
+        td.editable, th { /* Застосовуємо до td.editable та th */
+            /* overflow-wrap: break-word; -- Це правило має бути у вашому list-style.css */
+            /* word-wrap: break-word;  -- Застарілий варіант */
+        }
+        .date-input { /* Стилізація для поля вводу дати, якщо потрібно */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
     </style>
 </head>
 <body>
@@ -63,8 +82,7 @@
         <tr th:each="note : ${notes}" th:attr="data-id=${note.id}">
             <td class="editable" contenteditable="false" th:text="${note.lastName}" data-maxlength="10"></td>
             <td class="editable date-cell" contenteditable="false" th:text="${note.birthDate}"></td>
-            <td class="editable" contenteditable="false" th:text="${note.phoneNumber}" data-maxlength="10-"></td>
-            <td class="editable" contenteditable="false" th:text="${note.address}" data-maxlength="15"></td>
+            <td class="editable" contenteditable="false" th:text="${note.phoneNumber}" data-maxlength="13"></td> <td class="editable" contenteditable="false" th:text="${note.address}" data-maxlength="15"></td>
             <td class="editable" contenteditable="false" th:text="${note.jobPlace}" data-maxlength="20"></td>
             <td class="editable" contenteditable="false" th:text="${note.email}" data-maxlength="35"></td>
             <td class="actions">
@@ -109,8 +127,10 @@
                 row.classList.add('editing');
                 rowBeingEdited = row;
                 row.querySelectorAll('.editable').forEach((cell, index) => {
+                    // Зберігаємо початкове значення для можливого скасування
+                    cell.setAttribute('data-original-value', cell.innerText.trim());
                     cell.contentEditable = "true";
-                    if (index === 1) {
+                    if (index === 1) { // Дата народження
                         const currentText = cell.innerText.trim();
                         const input = document.createElement('input');
                         input.type = 'date';
@@ -118,10 +138,14 @@
                         input.value = currentText ? new Date(currentText).toISOString().split('T')[0] : '';
                         cell.innerText = '';
                         cell.appendChild(input);
+                        input.focus(); // Фокус на полі дати
+                    } else if (index === 0) {
+                        cell.focus(); // Фокус на першому полі
                     }
                 });
 
                 btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.title = "Зберегти"; // Оновлюємо title
                 row.style.backgroundColor = '#f0f0f0';
             } else {
                 const id = row.dataset.id;
@@ -129,7 +153,7 @@
 
                 const data = {
                     lastName: cells[0].innerText.trim(),
-                    birthDate: cells[1].querySelector('input')?.value || cells[1].innerText.trim(),
+                    birthDate: cells[1].querySelector('input.date-input')?.value || cells[1].innerText.trim(), // Змінено селектор інпуту
                     phoneNumber: cells[2].innerText.trim(),
                     address: cells[3].innerText.trim(),
                     jobPlace: cells[4].innerText.trim(),
@@ -142,21 +166,35 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
-                }).then(response => id ? Promise.resolve() : response.json())
+                }).then(response => {
+                    if (!response.ok) { throw new Error('Network response was not ok.'); }
+                    return id ? Promise.resolve({id: id}) : response.json(); // Повертаємо об'єкт з id для уніфікації
+                })
                     .then(result => {
-                        if (!id) {
+                        if (result && result.id && !id) { // result.id тепер завжди має бути тут, якщо успішно
                             row.setAttribute('data-id', result.id);
                         }
                         finishEdit(row, btn, data.birthDate);
+                    })
+                    .catch(error => {
+                        console.error("Помилка збереження:", error);
+                        alert("Не вдалося зберегти дані. Спробуйте ще раз.");
+                        // Можна не скасовувати редагування, щоб користувач міг виправити дані
                     });
             }
         }
     });
+
     document.addEventListener('input', function (e) {
-        if (e.target.isContentEditable) {
+        // Застосовуємо тільки до td з класом editable всередині tbody
+        if (e.target.isContentEditable && e.target.matches('#noteTableBody td.editable')) {
             const cell = e.target;
-            // Отримуємо maxLength з data-атрибуту, або використовуємо 30 як значення за замовчуванням
-            const maxLength = parseInt(cell.dataset.maxLength, 10) || 25; // [1]
+            const maxLengthString = cell.dataset.maxLength;
+            let maxLength = 25; // Значення за замовчуванням, якщо атрибут не валідний або відсутній
+
+            if (maxLengthString && !isNaN(parseInt(maxLengthString, 10))) {
+                maxLength = parseInt(maxLengthString, 10);
+            }
 
             if (cell.innerText.length > maxLength) {
                 cell.innerText = cell.innerText.substring(0, maxLength);
@@ -170,64 +208,120 @@
             }
         }
     });
+
     function finishEdit(row, btn, birthDateValue) {
         row.querySelectorAll('.editable').forEach((cell, index) => {
-            if (index === 1) {
-                const input = cell.querySelector('input');
-                const newDate = birthDateValue || (input ? input.value : '');
-                cell.innerHTML = newDate;
+            if (index === 1) { // Дата народження
+                const input = cell.querySelector('input.date-input');
+                // Використовуємо birthDateValue, яке вже містить значення з інпута або текстове значення
+                cell.innerHTML = birthDateValue;
             }
             cell.contentEditable = "false";
+            cell.removeAttribute('data-original-value'); // Очищаємо збережене значення
         });
         btn.innerHTML = '<i class="fas fa-pen"></i>';
+        btn.title = "Редагувати"; // Оновлюємо title
         row.classList.remove('editing');
         row.style.backgroundColor = '';
         rowBeingEdited = null;
     }
 
     function cancelEditing(row) {
-        row.querySelectorAll('.editable').forEach(cell => {
-            cell.contentEditable = "false";
-            if (cell.querySelector('input')) {
-                const originalValue = cell.querySelector('input').value;
-                cell.innerHTML = originalValue;
+        // Якщо це новий, не збережений рядок, видаляємо його
+        if (!row.dataset.id && row.classList.contains('editing')) {
+            row.remove();
+            if (rowBeingEdited === row) {
+                rowBeingEdited = null;
             }
+            return;
+        }
+
+        // Інакше, відновлюємо початкові значення для існуючого рядка
+        row.querySelectorAll('.editable').forEach((cell, index) => {
+            const originalValue = cell.getAttribute('data-original-value');
+            if (originalValue !== null) {
+                if (index === 1 && cell.querySelector('input.date-input')) { // Якщо це поле дати з інпутом
+                    cell.innerHTML = ''; // Видаляємо інпут
+                    cell.innerText = originalValue;
+                } else {
+                    cell.innerText = originalValue;
+                }
+            }
+            cell.contentEditable = "false";
+            cell.removeAttribute('data-original-value');
         });
-        row.querySelector('.edit-btn').innerHTML = '<i class="fas fa-pen"></i>';
+
+        const editBtn = row.querySelector('.edit-btn');
+        if (editBtn) {
+            editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+            editBtn.title = "Редагувати";
+        }
         row.classList.remove('editing');
         row.style.backgroundColor = '';
+        if (rowBeingEdited === row) {
+            rowBeingEdited = null;
+        }
     }
 
     document.addEventListener('click', function (e) {
-        if (e.target.closest('.delete-btn')) {
-            deleteTargetRow = e.target.closest('tr');
-            document.getElementById('confirmPopup').classList.remove('hidden');
+        const deleteButton = e.target.closest('.delete-btn');
+        if (deleteButton) {
+            const rowToDelete = deleteButton.closest('tr');
+            // Якщо це новий, ще не збережений рядок
+            if (!rowToDelete.dataset.id && rowToDelete.classList.contains('editing')) {
+                rowToDelete.remove();
+                if (rowBeingEdited === rowToDelete) {
+                    rowBeingEdited = null;
+                }
+            } else if (rowToDelete.dataset.id) { // Для існуючих рядків
+                deleteTargetRow = rowToDelete;
+                document.getElementById('confirmPopup').classList.remove('hidden');
+            }
         }
     });
 
     document.getElementById('confirmYes').addEventListener('click', () => {
-        const id = deleteTargetRow.dataset.id;
-        fetch(`/notes/delete-ajax/${id}`, { method: 'POST' })
-            .then(() => {
-                deleteTargetRow.remove();
-                document.getElementById('confirmPopup').classList.add('hidden');
-            });
+        if (deleteTargetRow && deleteTargetRow.dataset.id) {
+            const id = deleteTargetRow.dataset.id;
+            fetch(`/notes/delete-ajax/${id}`, { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) { throw new Error('Failed to delete'); }
+                    deleteTargetRow.remove();
+                    deleteTargetRow = null;
+                })
+                .catch(error => {
+                    console.error("Помилка видалення:", error);
+                    alert("Не вдалося видалити запис.");
+                })
+                .finally(() => {
+                    document.getElementById('confirmPopup').classList.add('hidden');
+                });
+        } else {
+            document.getElementById('confirmPopup').classList.add('hidden');
+        }
     });
 
     document.getElementById('confirmNo').addEventListener('click', () => {
         document.getElementById('confirmPopup').classList.add('hidden');
+        deleteTargetRow = null;
     });
 
     document.getElementById('addNoteBtn').addEventListener('click', () => {
+        if (rowBeingEdited) { // Якщо інший рядок вже редагується, скасувати його редагування
+            cancelEditing(rowBeingEdited);
+        }
         const tableBody = document.getElementById('noteTableBody');
         const newRow = document.createElement('tr');
+        // Додаємо data-maxlength атрибути до нових комірок
         newRow.innerHTML = `
-            <td class="editable" contenteditable="true"></td>
-            <td class="editable date-cell"><input type="date" class="date-input"></td>
-            <td class="editable" contenteditable="true"></td>
-            <td class="editable" contenteditable="true"></td>
-            <td class="editable" contenteditable="true"></td>
-            <td class="editable" contenteditable="true"></td>
+            <td class="editable" contenteditable="true" data-maxlength="10"></td>
+            <td class="editable date-cell" contenteditable="true">
+                <input type="date" class="date-input">
+            </td>
+            <td class="editable" contenteditable="true" data-maxlength="13"></td>
+            <td class="editable" contenteditable="true" data-maxlength="15"></td>
+            <td class="editable" contenteditable="true" data-maxlength="20"></td>
+            <td class="editable" contenteditable="true" data-maxlength="35"></td>
             <td class="actions">
                 <button class="icon-button edit-btn" title="Зберегти"><i class="fas fa-check"></i></button>
                 <button class="icon-button delete-btn" title="Видалити"><i class="fas fa-trash"></i></button>
@@ -237,12 +331,34 @@
         newRow.classList.add('editing');
         rowBeingEdited = newRow;
         newRow.style.backgroundColor = '#f0f0f0';
+
+        // Встановлюємо фокус на перше поле або поле дати нового рядка
+        const firstInput = newRow.querySelector('.editable[contenteditable="true"] input.date-input, .editable[contenteditable="true"]');
+        if (firstInput) {
+            if (firstInput.tagName === 'INPUT') {
+                firstInput.focus();
+            } else { // Якщо це td
+                firstInput.focus();
+                // Зберігаємо порожні значення як "original" для нового рядка
+                newRow.querySelectorAll('.editable').forEach(cell => {
+                    cell.setAttribute('data-original-value', '');
+                });
+            }
+        }
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && rowBeingEdited) {
-            e.preventDefault();
-            rowBeingEdited.querySelector('.edit-btn').click();
+        if (rowBeingEdited) { // Застосовуємо тільки якщо є рядок, що редагується
+            if (e.key === 'Enter' && !e.target.matches('textarea')) { // Не для textarea, якщо такі будуть
+                e.preventDefault();
+                const saveButton = rowBeingEdited.querySelector('.edit-btn i.fa-check');
+                if (saveButton) { // Перевіряємо, чи кнопка збереження активна
+                    saveButton.closest('.edit-btn').click();
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEditing(rowBeingEdited);
+            }
         }
     });
 
@@ -269,6 +385,7 @@
         allOption.value = 'all';
         allOption.textContent = 'усі';
         select.appendChild(allOption);
+        select.value = 'all'; // За замовчуванням
     }
 
     document.getElementById('searchInput').addEventListener('input', filterTable);
@@ -284,19 +401,22 @@
             const cells = row.children;
 
             if (field === 'all') {
-                for (let i = 0; i < cells.length - 1; i++) {
-                    const text = cells[i].textContent.toLowerCase();
-                    if (text.includes(input)) {
-                        visible = true;
-                        break;
+                for (let i = 0; i < cells.length - 1; i++) { // -1, щоб виключити стовпець "Дії"
+                    if (cells[i].classList.contains('editable')) { // Перевіряємо, чи це комірка з даними
+                        const text = cells[i].textContent.toLowerCase();
+                        if (text.includes(input)) {
+                            visible = true;
+                            break;
+                        }
                     }
                 }
             } else {
                 const index = parseInt(field);
-                const cellText = cells[index]?.textContent.toLowerCase() || '';
-                visible = cellText !== '' && cellText.includes(input);
+                if (cells[index] && cells[index].classList.contains('editable')) { // Перевірка існування та класу
+                    const cellText = cells[index].textContent.toLowerCase();
+                    visible = cellText.includes(input);
+                }
             }
-
             row.style.display = visible ? '' : 'none';
         });
     }
@@ -309,12 +429,10 @@
             currentSort.asc = isSameCol ? !currentSort.asc : true;
             currentSort.index = colIndex;
 
-            // Видаляємо всі стрілочки
-            document.querySelectorAll('.sort-indicator').forEach(el => el.remove());
+            document.querySelectorAll('th.sortable .sort-indicator').forEach(el => el.remove());
 
-            // Створюємо нову
             const arrow = document.createElement('i');
-            arrow.className = `fas ${currentSort.asc ? 'fa-arrow-up up' : 'fa-arrow-down down'} sort-indicator`;
+            arrow.className = `fas ${currentSort.asc ? 'fa-arrow-up' : 'fa-arrow-down'} sort-indicator`; // Видалено класи 'up'/'down'
             header.appendChild(arrow);
 
             rows.sort((a, b) => {
@@ -325,13 +443,23 @@
                 if (aText !== '' && bText === '') return -1;
                 if (aText === '' && bText === '') return 0;
 
-                return currentSort.asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+                // Спеціальне сортування для дат, якщо стовпець має клас date-cell
+                if (a.children[colIndex].classList.contains('date-cell')) {
+                    const dateA = new Date(aText).getTime() || 0; // 0 для невалідних дат
+                    const dateB = new Date(bText).getTime() || 0;
+                    if (currentSort.asc) {
+                        return dateA - dateB;
+                    } else {
+                        return dateB - dateA;
+                    }
+                }
+
+                return currentSort.asc ? aText.localeCompare(bText, 'uk') : bText.localeCompare(aText, 'uk');
             });
 
             rows.forEach(row => tbody.appendChild(row));
         });
     });
-
 
     populateSearchOptions();
 </script>
@@ -339,7 +467,6 @@
     <a href="/user" title="Профіль">
         <i class="fas fa-user-circle"></i>
     </a>
-
 </div>
 </body>
 </html>
