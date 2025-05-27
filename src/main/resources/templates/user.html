@@ -10,12 +10,12 @@
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon-actual');
 
-            if (passwordInput.type === 'password') { // Якщо пароль зараз прихований
-                passwordInput.type = 'text'; // Показати пароль
-                eyeIcon.innerHTML = '❌'; // Змінити іконку на "сховати" (Хрестик)
-            } else { // Якщо пароль зараз видимий
-                passwordInput.type = 'password'; // Сховати пароль
-                eyeIcon.innerHTML = '👁️'; // Змінити іконку на "показати" (Око)
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = '❌';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = '👁️';
             }
         }
     </script>

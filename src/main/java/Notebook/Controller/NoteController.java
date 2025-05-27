@@ -77,7 +77,7 @@ public class NoteController {
         return "redirect:/notes";
     }
 
-    // Видалення нотатки (через посилання)
+    // Видалення нотатки
     @GetMapping("/delete/{id}")
     public String deleteNote(@PathVariable Long id, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
