@@ -1,5 +1,8 @@
-package Notebook;
+package Notebook.Controller;
 
+import Notebook.Model.NoteModel;
+import Notebook.Repository.NoteRepository;
+import Notebook.Model.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +19,6 @@ public class NoteController {
     @Autowired
     private NoteRepository noteRepository;
 
-    // Показати список нотаток лише для поточного користувача
     @GetMapping
     public String listNotes(HttpSession session, Model model) {
         UserModel user = (UserModel) session.getAttribute("user");
@@ -36,7 +38,6 @@ public class NoteController {
         return "create";
     }
 
-    // Обробка створення через AJAX — встановлюємо користувача
     @PostMapping("/create-ajax")
     @ResponseBody
     public NoteModel createNoteAjax(@RequestBody NoteModel note, HttpSession session) {
@@ -44,7 +45,6 @@ public class NoteController {
         if (user == null) {
             return null;
         }
-
         note.setUser(user);
         return noteRepository.save(note);
     }
@@ -63,7 +63,6 @@ public class NoteController {
         return "redirect:/notes";
     }
 
-    // Редагування нотатки
     @PostMapping("/edit/{id}")
     public String editNote(@PathVariable Long id, @ModelAttribute NoteModel updatedNote, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");

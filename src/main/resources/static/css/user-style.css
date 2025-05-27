@@ -1,56 +1,177 @@
+/* user-profile-style.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f3f3f3;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7f6; /* Фон сторінки */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-}
-input[type="password"], input[type="text"] {
-    padding-right: 30px;
-    font-size: 16px;
-    width: 250px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    padding: 8px;
-}
-.user-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
-    width: 300px;
+    min-height: 100vh;
+    color: #333;
+    padding: 20px; /* Відступи для тіла сторінки */
 }
 
-.user-container h1 {
+/* Стилі для нового зовнішнього контейнера */
+.page-wrapper {
+    display: flex; /* Для центрування profile-container всередині */
+    justify-content: center;
+    align-items: center;
+    padding: 25px; /* Внутрішні відступи для page-wrapper */
+    background-color: #e9edf0; /* Трохи темніший фон для page-wrapper */
+    border-radius: 16px; /* Заокруглення кутів для page-wrapper */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); /* Легка тінь для page-wrapper */
+    width: 100%;
+    max-width: 550px; /* Максимальна ширина для page-wrapper, трохи більша за profile-container */
+}
+
+.profile-container {
+    width: 100%;
+    max-width: 450px; /* Максимальна ширина для внутрішнього контейнера профілю */
+    background: white; /* Білий фон для картки профілю */
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Тінь для картки профілю */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
-    margin-bottom: 20px;
 }
 
-.user-container label {
+.profile-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.profile-container h2 {
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.profile-container label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #555;
+    font-size: 16px;
 }
 
-.user-container input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.user-container button {
+.profile-container input[type="password"],
+.profile-container input[type="text"] {
     width: 100%;
-    padding: 10px;
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    padding: 12px 45px 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
+    font-size: 22px;
+    color: #777;
+    user-select: none;
+    transition: color 0.2s ease;
 }
 
-.user-container button:hover {
-    background-color: #c9302c;
+.eye-icon:hover {
+    color: #3498db;
+}
+
+.profile-links {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.profile-link {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.profile-link:hover {
+    transform: translateY(-2px);
+}
+
+.notes-link {
+    background-color: #3498db;
+}
+
+.notes-link:hover {
+    background-color: #2980b9;
+}
+
+.logout-link {
+    background-color: #e74c3c;
+}
+
+.logout-link:hover {
+    background-color: #c0392b;
+}
+
+/* Адаптивність */
+@media (max-width: 600px) { /* Змінено точку для page-wrapper */
+    .page-wrapper {
+        padding: 15px;
+        margin-left: 10px; /* Додано для відступу на дуже малих екранах */
+        margin-right: 10px;
+    }
+    .profile-container {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container h2 {
+        font-size: 22px;
+    }
+
+    .profile-container label,
+    .profile-container input[type="password"],
+    .profile-container input[type="text"],
+    .profile-link {
+        font-size: 15px;
+    }
+
+    .profile-link {
+        padding: 11px 15px;
+    }
+
+    .eye-icon {
+        font-size: 20px;
+        right: 12px;
+    }
+
+    .profile-container input[type="password"],
+    .profile-container input[type="text"] {
+        padding: 11px 40px 11px 12px;
+    }
 }

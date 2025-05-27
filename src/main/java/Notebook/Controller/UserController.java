@@ -1,5 +1,7 @@
-package Notebook;
+package Notebook.Controller;
 
+import Notebook.Repository.UserRepository;
+import Notebook.Model.UserModel;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,7 @@ public class UserController {
             return "registration";
         }
         UserModel savedUser = userRepository.save(user);
-        session.setAttribute("user", savedUser);  // Автоматичний логін
+        session.setAttribute("user", savedUser);
         return "redirect:/notes";
     }
 

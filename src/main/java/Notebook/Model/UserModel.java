@@ -1,4 +1,4 @@
-package Notebook;
+package Notebook.Model;
 
 import jakarta.persistence.*;
 import java.util.List;
